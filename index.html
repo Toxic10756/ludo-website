@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real-Money 2P Ludo Pro Platform</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Canvas Confetti for Win Effect -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col pb-16 md:pb-0">
+
+  <!-- TOP HEADER -->
+  <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700 sticky top-0 z-40 px-4 py-3 flex justify-between items-center shadow-lg">
+    <div class="flex items-center space-x-2">
+      <div class="bg-gradient-to-tr from-amber-500 to-red-500 p-2 rounded-xl text-white shadow-md">
+        <i class="fa-solid font-bold text-lg">🎲</i>
+      </div>
+      <div>
+        <h1 class="font-black text-xl tracking-wide bg-gradient-to-r from-amber-400 via-orange-400 to-red-500 bg-clip-text text-transparent">LUDO PRO</h1>
+        <p class="text-[10px] text-slate-400 font-medium">Real-Money Skill Arena</p>
+      </div>
+    </div>
+
+    <!-- WALLET & USER BADGE -->
+    <div class="flex items-center space-x-3">
+      <div id="walletBadge" onclick="switchTab('wallet')" class="cursor-pointer bg-slate-900/80 border border-amber-500/40 hover:border-amber-400 px-3 py-1.5 rounded-full flex items-center space-x-2 transition">
+        <i class="fa-solid fa-wallet text-amber-400"></i>
+        <span class="text-xs text-slate-400 font-semibold">₹<span id="walletBal" class="text-sm font-bold text-emerald-400">0</span></span>
+        <i class="fa-solid fa-plus-circle text-xs text-amber-400"></i>
+      </div>
+      
+      <button onclick="openOtpModal()" id="loginBtn" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-md flex items-center space-x-1.5 transition">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Login</span>
+      </button>
+
+      <div id="userProfileBadge" class="hidden flex items-center space-x-2 bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-700">
+        <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white font-black text-xs flex items-center justify-center" id="userAvatar">U</div>
+        <span id="kycBadgeHeader" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30">KYC PENDING</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN NAVIGATION TABS -->
+  <main class="flex-1 max-w-4xl w-full mx-auto p-3 sm:p-5">
+    <div class="flex justify-between border-b border-slate-800 mb-5 text-xs sm:text-sm font-bold overflow-x-auto no-scrollbar">
+      <button id="tab-lobby" onclick="switchTab('lobby')" class="px-4 py-2.5 border-b-2 border-amber-500 text-amber-400 flex items-center space-x-2 shrink-0">
+        <i class="fa-solid fa-gamepad"></i> <span>Game Arena</span>
+      </button>
+      <button id="tab-wallet" onclick="switchTab('wallet')" class="px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 shrink-0">
+        <i class="fa-solid fa-wallet"></i> <span>Wallet & UPI</span>
+      </button>
+      <button id="tab-kyc" onclick="switchTab('kyc')" class="px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 shrink-0">
+        <i class="fa-solid fa-id-card"></i> <span>KYC Verification</span>
+      </button>
+      <button id="tab-refer" onclick="switchTab('refer')" class="px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 shrink-0">
+        <i class="fa-solid fa-share-nodes"></i> <span>Refer & Earn</span>
+      </button>
+      <button id="tab-admin" onclick="switchTab('admin')" class="px-4 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2 shrink-0">
+        <i class="fa-solid fa-user-shield"></i> <span>Admin Panel</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: LOBBY & GAME ARENA -->
+    <section id="sec-lobby" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Create Room Card -->
+        <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20"><i class="fa-solid fa-plus text-xl"></i></div>
+            <div>
+              <h3 class="font-bold text-base">Create Game Room</h3>
+              <p class="text-xs text-slate-400">Select entry fee to generate Room Code</p>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-slate-400 mb-2">Select Stake Amount (₹)</label>
+            <div class="grid grid-cols-4 gap-2">
+              <button onclick="setStake(10)" class="stake-btn border border-slate-600 bg-slate-900/60 py-2 rounded-xl font-bold text-sm hover:border-amber-500 text-amber-400 transition" data-val="10">₹10</button>
+              <button onclick="setStake(50)" class="stake-btn border border-slate-600 bg-slate-900/60 py-2 rounded-xl font-bold text-sm hover:border-amber-500 text-slate-300 transition" data-val="50">₹50</button>
+              <button onclick="setStake(100)" class="stake-btn border border-slate-600 bg-slate-900/60 py-2 rounded-xl font-bold text-sm hover:border-amber-500 text-slate-300 transition" data-val="100">₹100</button>
+              <button onclick="setStake(500)" class="stake-btn border border-slate-600 bg-slate-900/60 py-2 rounded-xl font-bold text-sm hover:border-amber-500 text-slate-300 transition" data-val="500">₹500</button>
+            </div>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50 mb-4 text-xs space-y-1">
+            <div class="flex justify-between text-slate-400"><span>Prize Pool (Winner Gets 90%):</span> <span class="font-bold text-emerald-400" id="prizePreview">₹18</span></div>
+            <div class="flex justify-between text-slate-500"><span>Platform Fee (10%):</span> <span id="feePreview">₹2</span></div>
+          </div>
+          <button onclick="createRoom()" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 font-black py-3 rounded-xl shadow-lg transition text-sm uppercase tracking-wide">
+            Create Match & Code
+          </button>
+        </div>
+
+        <!-- Join Room Card -->
+        <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20"><i class="fa-solid fa-key text-xl"></i></div>
+              <div>
+                <h3 class="font-bold text-base">Join Game Room</h3>
+                <p class="text-xs text-slate-400">Enter opponent's 6-digit room code</p>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <label class="block text-xs font-semibold text-slate-400">Room Code</label>
+              <input type="text" id="joinCodeInput" placeholder="e.g. 849201" maxlength="6" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-center text-xl font-mono tracking-widest uppercase focus:outline-none focus:border-indigo-500 text-indigo-300 font-bold" />
+            </div>
+          </div>
+          <button onclick="joinRoom()" class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg transition text-sm uppercase tracking-wide">
+            Join Match Now
+          </button>
+        </div>
+      </div>
+
+      <!-- ACTIVE GAME BOARD CONTAINER -->
+      <div id="gameArena" class="hidden bg-slate-800/90 border border-slate-700 rounded-2xl p-4 sm:p-6 shadow-2xl relative">
+        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700">
+          <div class="flex items-center space-x-2">
+            <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-1 rounded-full border border-emerald-500/30 font-bold flex items-center gap-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Match
+            </span>
+            <span class="text-xs text-slate-400 font-mono">Room: <strong id="activeRoomCodeDisplay" class="text-amber-400">------</strong></span>
+          </div>
+          <div class="text-xs font-bold bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700">
+            Pool: <span class="text-emerald-400" id="activePrizeDisplay">₹0</span>
+          </div>
+        </div>
+
+        <!-- LUDO BOARD CANVAS SIMULATOR -->
+        <div class="max-w-md mx-auto aspect-square bg-slate-950 border-4 border-slate-700 rounded-2xl relative p-2 overflow-hidden shadow-inner flex flex-col justify-between">
+          <!-- TOP PLAYER (RED) -->
+          <div class="flex justify-between items-center bg-red-950/40 border border-red-500/30 p-2 rounded-xl">
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-8 rounded-full bg-red-600 text-white font-black text-xs flex items-center justify-center border-2 border-red-300">P2</div>
+              <div>
+                <p class="text-xs font-bold text-red-300" id="p2Name">Opponent</p>
+                <p class="text-[10px] text-slate-400">Tokens Left: <span id="p2TokensHome" class="text-red-400 font-bold">4</span></p>
+              </div>
+            </div>
+            <div id="p2Timer" class="w-7 h-7 rounded-full border-2 border-red-500 flex items-center justify-center text-[10px] font-bold text-red-400">15s</div>
+          </div>
+
+          <!-- LUDO CANVAS GRID SIMULATION -->
+          <div class="relative w-full aspect-square my-2 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center">
+            <!-- Simplified Board Graphical Overlay -->
+            <div class="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-1 p-1 opacity-20">
+              <div class="bg-red-500 rounded-tl-xl"></div>
+              <div class="bg-slate-700"></div>
+              <div class="bg-green-500 rounded-tr-xl"></div>
+              <div class="bg-slate-700"></div>
+              <div class="bg-amber-400 rounded-xl"></div>
+              <div class="bg-slate-700"></div>
+              <div class="bg-blue-500 rounded-bl-xl"></div>
+              <div class="bg-slate-700"></div>
+              <div class="bg-yellow-500 rounded-br-xl"></div>
+            </div>
+
+            <!-- Interactive Token Tracks Representation -->
+            <div class="relative z-10 text-center space-y-3">
+              <div id="diceDisplay" class="w-16 h-16 mx-auto bg-slate-800 border-2 border-amber-400 rounded-2xl flex items-center justify-center text-3xl font-black shadow-2xl text-amber-300 transition-all transform hover:scale-105">
+                🎲
+              </div>
+              <p id="turnStatusText" class="text-xs font-bold text-amber-400 animate-pulse">Your Turn! Roll Dice</p>
+              <button onclick="rollDice()" id="rollDiceBtn" class="bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black px-6 py-2.5 rounded-xl shadow-lg hover:brightness-110 active:scale-95 text-xs uppercase tracking-wide">
+                Roll Dice
+              </button>
+            </div>
+          </div>
+
+          <!-- BOTTOM PLAYER (BLUE / YOU) -->
+          <div class="flex justify-between items-center bg-blue-950/40 border border-blue-500/30 p-2 rounded-xl">
+            <div class="flex items-center space-x-2">
+              <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center border-2 border-blue-300">YOU</div>
+              <div>
+                <p class="text-xs font-bold text-blue-300" id="p1Name">You</p>
+                <p class="text-[10px] text-slate-400">Tokens Left: <span id="p1TokensHome" class="text-blue-400 font-bold">4</span></p>
+              </div>
+            </div>
+            <div id="p1Timer" class="w-7 h-7 rounded-full border-2 border-blue-500 flex items-center justify-center text-[10px] font-bold text-blue-400">15s</div>
+          </div>
+        </div>
+
+        <!-- IN-GAME EMOJI & QUICK CHAT -->
+        <div class="mt-4 pt-3 border-t border-slate-700 flex items-center justify-between gap-2">
+          <div class="flex space-x-2 text-lg">
+            <button onclick="sendEmoji('👍')" class="hover:scale-125 transition">👍</button>
+            <button onclick="sendEmoji('🔥')" class="hover:scale-125 transition">🔥</button>
+            <button onclick="sendEmoji('😂')" class="hover:scale-125 transition">😂</button>
+            <button onclick="sendEmoji('😎')" class="hover:scale-125 transition">😎</button>
+            <button onclick="sendEmoji('🎯')" class="hover:scale-125 transition">🎯</button>
+          </div>
+          <div id="chatBubble" class="text-xs bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-full text-slate-300 hidden font-semibold">
+            <span id="chatSender" class="text-amber-400 font-bold"></span>: <span id="chatText"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: WALLET & UPI PAYMENTS -->
+    <section id="sec-wallet" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Add Cash via UPI -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+          <h3 class="font-bold text-base flex items-center gap-2 text-emerald-400">
+            <i class="fa-solid fa-qrcode"></i> Instant Add Cash (UPI / QR)
+          </h3>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Enter Amount (₹)</label>
+            <input type="number" id="depositAmount" value="100" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-500 font-bold text-emerald-400" />
+          </div>
+          <button onclick="generateUpiQr()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wide shadow-md">
+            Generate Payment QR Code
+          </button>
+
+          <!-- QR Code Display Box -->
+          <div id="qrBox" class="hidden bg-slate-900 p-4 rounded-xl border border-slate-700 text-center space-y-3">
+            <p class="text-xs text-slate-400">Scan using GPay, PhonePe, or Paytm:</p>
+            <div class="bg-white p-3 inline-block rounded-xl shadow-md">
+              <!-- Placeholder QR generated dynamically -->
+              <img id="upiQrImage" src="" alt="UPI QR Code" class="w-36 h-36 mx-auto" />
+            </div>
+            <p class="text-[11px] font-mono text-amber-400 font-bold" id="upiVpaDisplay">UPI ID: merchant@upi</p>
+
+            <div class="pt-2 border-t border-slate-800 text-left space-y-2">
+              <label class="block text-[11px] font-semibold text-slate-400">Enter 12-Digit UTR / Ref No.</label>
+              <div class="flex gap-2">
+                <input type="text" id="utrInput" maxlength="12" placeholder="e.g. 329104829102" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-mono focus:outline-none focus:border-amber-400" />
+                <button onclick="submitUtr()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black px-3 py-1.5 rounded-lg text-xs shrink-0">
+                  Verify
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Withdraw Cash -->
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg space-y-4">
+          <h3 class="font-bold text-base flex items-center gap-2 text-indigo-400">
+            <i class="fa-solid fa-money-bill-transfer"></i> Instant Withdrawal
+          </h3>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">UPI ID for Payout</label>
+            <input type="text" id="withdrawUpi" placeholder="yourname@upi" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-bold" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Withdraw Amount (₹)</label>
+            <input type="number" id="withdrawAmount" placeholder="Min ₹100" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-bold text-amber-400" />
+          </div>
+          <button onclick="processWithdrawal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wide shadow-md">
+            Request Withdrawal
+          </button>
+          <p class="text-[10px] text-slate-500 italic text-center">*KYC Verification required for payouts over ₹500.</p>
+        </div>
+      </div>
+
+      <!-- TRANSACTION HISTORY -->
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg">
+        <h4 class="font-bold text-sm mb-3 text-slate-300">Transaction History</h4>
+        <div class="space-y-2 max-h-48 overflow-y-auto pr-1" id="txHistory">
+          <p class="text-xs text-slate-500 italic">No transactions recorded yet.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: KYC VERIFICATION -->
+    <section id="sec-kyc" class="hidden space-y-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-lg max-w-lg mx-auto space-y-4">
+        <div class="flex items-center space-x-3">
+          <div class="p-3 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20"><i class="fa-solid fa-shield-halved text-xl"></i></div>
+          <div>
+            <h3 class="font-bold text-base">KYC Verification</h3>
+            <p class="text-xs text-slate-400">Required for fair play & quick withdrawals</p>
+          </div>
+        </div>
+
+        <form id="kycForm" onsubmit="submitKyc(event)" class="space-y-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Full Name (As per Govt ID)</label>
+            <input type="text" required placeholder="e.g. Tushar Kumar" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Aadhaar Card / PAN Number</label>
+            <input type="text" required placeholder="XXXX-XXXX-XXXX" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs font-mono focus:outline-none focus:border-amber-400" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-400 mb-1">Upload ID Proof Document</label>
+            <input type="file" required accept="image/*" class="w-full text-xs text-slate-400 bg-slate-900 rounded-xl border border-slate-700 p-2" />
+          </div>
+          <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-2.5 rounded-xl text-xs uppercase tracking-wide shadow-md">
+            Submit Documents
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 4: REFER & EARN -->
+    <section id="sec-refer" class="hidden space-y-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 s
